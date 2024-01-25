@@ -10,12 +10,12 @@ import java.util.Locale;
 
 @Data
 @AllArgsConstructor
+
 public class ErrorResponse {
     private int responseCode;
     private String errorMessage;
     private LocalDateTime timestamp;
     private String path;
-    private Object data;
 
     public ErrorResponse(int responseCode, String errorMessage, String path) {
         this.responseCode = responseCode;

@@ -1,15 +1,17 @@
 package com.expense.dto.exponse;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
 
 @Data
 @NoArgsConstructor
-public class UpdateExpenseDto {
+public class ReqCreateExpenseDto {
 
-    private Integer id;
+    @NotNull(message = "req")
     private Double expend;
     private String note;
+
+
 }

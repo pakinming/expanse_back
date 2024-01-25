@@ -1,5 +1,4 @@
 package com.expense.dto.exponse;
 
-public class CreateExpenseDto
-{
+public class ReqExpenseListDto {
 }

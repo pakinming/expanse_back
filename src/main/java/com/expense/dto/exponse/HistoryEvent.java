@@ -1,6 +1,6 @@
 package com.expense.dto.exponse;
 
-public enum ExpenseEvent {
+public enum HistoryEvent {
     CREATE,
     UPDATE,
     DELETE
