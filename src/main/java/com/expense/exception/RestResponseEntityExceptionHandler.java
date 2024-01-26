@@ -1,5 +1,6 @@
 package com.expense.exception;
 
+import com.expense.dto.ResponseHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -18,18 +19,16 @@ public class RestResponseEntityExceptionHandler
             RuntimeException ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), request.getRequestURI());
-
-
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
 
     }
 
 
     @ExceptionHandler(value = {BadRequestException.class, Exception.class})
-    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
-
+    public ResponseEntity<Object> handleException(Exception ex, HttpServletRequest request) {
 
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request.getRequestURI());
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+        return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, error);
     }
 }

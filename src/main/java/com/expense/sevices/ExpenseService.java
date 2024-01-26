@@ -1,11 +1,11 @@
 package com.expense.sevices;
 
 
+import com.expense.dto.PaginationDto;
 import com.expense.dto.exponse.HistoryEvent;
 import com.expense.dto.exponse.ReqCreateExpenseDto;
 import com.expense.dto.exponse.UpdateExpenseDto;
 import com.expense.entity.ExpenseEntity;
-import com.expense.entity.HistoryEntity;
 import com.expense.repository.ExpenseRepository;
 import com.expense.repository.HistoryRepository;
 import org.apache.coyote.BadRequestException;
@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -31,11 +32,33 @@ public class ExpenseService {
     @Autowired
     private HistoryRepository historyRepository;
 
-    public Page<ExpenseEntity> findAll(int pageNo, int pageSize, String sortBy, String sortDirection) {
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+    public Object findAll(PaginationDto req) {
 
-        return expenseRepository.findAll(pageable);
+        Sort sort = Sort.by(Sort.Direction.fromString(req.getSortDirection()), req.getSortBy());
+        Pageable pageable = PageRequest.of(req.getPageNo(), req.getPageSize(), sort);
+
+
+        Page<ExpenseEntity> paging = expenseRepository.findAll(pageable);
+
+        HashMap<String, Object> response = new HashMap<>();
+
+        response.put("content", paging.getContent());
+        response.put("totalResult", paging.getTotalElements());
+        response.put("numberOfResult", paging.getNumberOfElements());
+        response.put("totalPages", paging.getTotalPages());
+
+        return response;
+    }
+
+    public ExpenseEntity findOneExpense(Integer id) throws Exception {
+
+        Optional<ExpenseEntity> ee = expenseRepository.findById(id);
+        if (ee.isPresent()) {
+            return ee.get();
+        } else {
+            throw new BadRequestException("Not found your id " + id);
+        }
+
     }
 
     public ExpenseEntity createExpend(ReqCreateExpenseDto req, HistoryEvent historyEvent) throws Exception {
@@ -54,19 +77,17 @@ public class ExpenseService {
 
     public ExpenseEntity updateExpend(UpdateExpenseDto req, HistoryEvent historyEvent) throws Exception {
 
-        Optional<ExpenseEntity> entity = expenseRepository.findById(req.getId());
-
-        if (entity.isPresent()) {
-            ExpenseEntity ee = entity.get();
-            ee.setExpend(req.getExpend());
-            ee.setNote(req.getNote());
-            //TODO: add history and event
-            return expenseRepository.save(ee);
-
-        } else {
-            throw new BadRequestException("Not found your id " + req.getId());
-        }
-
+        //TODO: add history and event
+        ExpenseEntity entity = findOneExpense(req.getId());
+        entity.setExpend(req.getExpend());
+        entity.setNote(req.getNote());
+        return expenseRepository.save(entity);
     }
+
+    public void deleteExpense(Integer id, HistoryEvent historyEvent) throws Exception {
+        //TODO: add history event
+        expenseRepository.delete(findOneExpense(id));
+    }
+
 
 }
