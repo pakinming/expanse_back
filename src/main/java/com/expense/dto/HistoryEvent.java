@@ -1,4 +1,4 @@
-package com.expense.dto.exponse;
+package com.expense.dto;
 
 public enum HistoryEvent {
     CREATE,

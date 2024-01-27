@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import static com.expense.constant.Utils.FMT_RFC3339;
+
 
 @Data
 @AllArgsConstructor
@@ -21,9 +23,9 @@ public class ErrorResponse {
         this.responseCode = responseCode;
         this.errorMessage = errorMessage;
         this.path = path;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.of("th","TH"));
-        String formattedDate = LocalDateTime.now().format(formatter);
-        this.timestamp = LocalDateTime.parse(formattedDate, formatter);
+
+        String formattedDate = LocalDateTime.now().format(FMT_RFC3339);
+        this.timestamp = LocalDateTime.parse(formattedDate, FMT_RFC3339);
     }
 
 }

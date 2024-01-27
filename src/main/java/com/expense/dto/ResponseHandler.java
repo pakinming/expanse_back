@@ -18,10 +18,10 @@ public class ResponseHandler {
         return ResponseEntity.status(status).body(map);
     }
 
-    public static ResponseEntity<Object> generateResponse(String message, HttpStatus status, String responseCode) {
+    public static ResponseEntity<Object> generateResponse(String message, HttpStatus status) {
         Map<String, Object> map = new HashMap<>();
         map.put("message", message);
-        map.put("responseCode",responseCode);
+        map.put("responseCode",status.value());
 
         return ResponseEntity.status(status).body(map);
     }

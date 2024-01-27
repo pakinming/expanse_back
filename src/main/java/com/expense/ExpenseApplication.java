@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @ComponentScan(basePackages = {"com.expense.*"})
 public class ExpenseApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ExpenseApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ExpenseApplication.class, args);
+    }
 
 }

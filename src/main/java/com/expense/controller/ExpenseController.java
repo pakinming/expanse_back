@@ -1,9 +1,9 @@
 package com.expense.controller;
 
 
-import com.expense.dto.PaginationDto;
+import com.expense.dto.HistoryEvent;
+import com.expense.dto.ReqPaginationDto;
 import com.expense.dto.ResponseHandler;
-import com.expense.dto.exponse.HistoryEvent;
 import com.expense.dto.exponse.ReqCreateExpenseDto;
 import com.expense.dto.exponse.UpdateExpenseDto;
 import com.expense.sevices.ExpenseService;
@@ -13,11 +13,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/v1/expanse")
-
 public class ExpenseController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -27,21 +28,21 @@ public class ExpenseController {
 
 
     @GetMapping
-    public ResponseEntity<Object> getExpanse(
+    public ResponseEntity<Object> getAllExpense(
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "expendDate") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDirection) throws Exception {
 
 
-        PaginationDto paging = PaginationDto.builder()
+        ReqPaginationDto paging = ReqPaginationDto.builder()
                 .pageNo(pageNo - 1)
                 .pageSize(pageSize)
                 .sortBy(sortBy)
                 .sortDirection(sortDirection)
                 .build();
 
-        logger.info("GET: /api/v1/" + paging.toString());
+        logger.info("GET: /api/v1/expanse {}", paging.toString());
         return ResponseHandler.generateResponse(
                 HttpStatus.OK.series().toString(),
                 HttpStatus.OK,
@@ -49,9 +50,9 @@ public class ExpenseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getExpanseList(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Object> getOneExpense(@PathVariable Integer id) throws Exception {
 
-        logger.info("POST: /api/v1/" + id);
+        logger.info("POST: /api/v1/expanse {}", id);
         return ResponseHandler.generateResponse(
                 HttpStatus.OK.series().toString(),
                 HttpStatus.OK,
@@ -62,7 +63,7 @@ public class ExpenseController {
     public ResponseEntity<Object> createExpense(@RequestBody ReqCreateExpenseDto body) throws Exception {
 
 
-        logger.info("POST: /api/v1/expense/create");
+        logger.info("POST: /api/v1/expense {}", body.toString());
         return ResponseHandler.generateResponse(
                 HttpStatus.CREATED.series().toString(),
                 HttpStatus.CREATED,
@@ -71,8 +72,8 @@ public class ExpenseController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> updateExpense(@RequestBody UpdateExpenseDto body) throws Exception {
-        logger.info("PUT: /api/v1/expense");
+    public ResponseEntity<Object> updateExpense(@RequestBody @Validated UpdateExpenseDto body) throws Exception {
+        logger.info("PUT: /api/v1/expense req {}", body.toString());
 
         return ResponseHandler.generateResponse(
                 HttpStatus.OK.series().toString(),
@@ -84,6 +85,7 @@ public class ExpenseController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteExpense(@PathVariable @NotNull Integer id) throws Exception {
 
+        logger.info("DELETE: /api/v1/expense req {}", id);
         expenseService.deleteExpense(id, HistoryEvent.DELETE);
 
         return ResponseHandler.generateResponse(

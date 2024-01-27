@@ -1,13 +1,15 @@
 package com.expense.sevices;
 
 
-import com.expense.dto.PaginationDto;
-import com.expense.dto.exponse.HistoryEvent;
+import com.expense.dto.HistoryEvent;
+import com.expense.dto.ReqPaginationDto;
+import com.expense.dto.ResPaginationDto;
 import com.expense.dto.exponse.ReqCreateExpenseDto;
 import com.expense.dto.exponse.UpdateExpenseDto;
 import com.expense.entity.ExpenseEntity;
+import com.expense.entity.HistoryEntity;
 import com.expense.repository.ExpenseRepository;
-import com.expense.repository.HistoryRepository;
+import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -30,24 +32,23 @@ public class ExpenseService {
     private ExpenseRepository expenseRepository;
 
     @Autowired
-    private HistoryRepository historyRepository;
+    private HistoryService historyService;
 
-    public Object findAll(PaginationDto req) {
+    public Object findAll(ReqPaginationDto req) throws Exception {
 
         Sort sort = Sort.by(Sort.Direction.fromString(req.getSortDirection()), req.getSortBy());
         Pageable pageable = PageRequest.of(req.getPageNo(), req.getPageSize(), sort);
 
-
         Page<ExpenseEntity> paging = expenseRepository.findAll(pageable);
 
-        HashMap<String, Object> response = new HashMap<>();
 
-        response.put("content", paging.getContent());
-        response.put("totalResult", paging.getTotalElements());
-        response.put("numberOfResult", paging.getNumberOfElements());
-        response.put("totalPages", paging.getTotalPages());
+        return ResPaginationDto.builder()
+                .content(Collections.singletonList(paging.getContent()))
+                .numberOfResult(paging.getNumberOfElements())
+                .totalResult(paging.getTotalElements())
+                .totalPages(paging.getTotalPages())
+                .build();
 
-        return response;
     }
 
     public ExpenseEntity findOneExpense(Integer id) throws Exception {
@@ -61,6 +62,7 @@ public class ExpenseService {
 
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public ExpenseEntity createExpend(ReqCreateExpenseDto req, HistoryEvent historyEvent) throws Exception {
 
         if (0.0 >= req.getExpend()) {
@@ -70,22 +72,55 @@ public class ExpenseService {
         ExpenseEntity expense = new ExpenseEntity();
         expense.setExpend(req.getExpend());
         expense.setNote(req.getNote());
-        //TODO: add history and event
+        var expenseRes = expenseRepository.save(expense);
 
-        return expenseRepository.save(expense);
+        historyService.createHistory(HistoryEntity.builder()
+                .action(historyEvent.name())
+                .expendId(expenseRes.getId())
+                .expend(expenseRes.getExpend())
+                .expendDate(expenseRes.getExpendDate())
+                .note(expenseRes.getNote())
+                .build());
+
+        return expenseRes;
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public ExpenseEntity updateExpend(UpdateExpenseDto req, HistoryEvent historyEvent) throws Exception {
 
         //TODO: add history and event
+
         ExpenseEntity entity = findOneExpense(req.getId());
         entity.setExpend(req.getExpend());
         entity.setNote(req.getNote());
-        return expenseRepository.save(entity);
+
+        var expenseRes = expenseRepository.save(entity);
+
+        historyService.createHistory(HistoryEntity.builder()
+                .action(historyEvent.name())
+                .expendId(expenseRes.getId())
+                .expend(expenseRes.getExpend())
+                .expendDate(expenseRes.getExpendDate())
+                .note(expenseRes.getNote())
+                .build());
+
+        return expenseRes;
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public void deleteExpense(Integer id, HistoryEvent historyEvent) throws Exception {
         //TODO: add history event
+
+        var expenseRes = findOneExpense(id);
+
+        historyService.createHistory(HistoryEntity.builder()
+                .action(historyEvent.name())
+                .expendId(expenseRes.getId())
+                .expend(expenseRes.getExpend())
+                .expendDate(expenseRes.getExpendDate())
+                .note(expenseRes.getNote())
+                .build());
+
         expenseRepository.delete(findOneExpense(id));
     }
 
