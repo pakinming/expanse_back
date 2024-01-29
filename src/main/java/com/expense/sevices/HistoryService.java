@@ -36,7 +36,7 @@ public class HistoryService {
 
 
         return ResPaginationDto.builder()
-                .content(Collections.singletonList(paging.getContent()))
+                .content(paging.getContent())
                 .numberOfResult(paging.getNumberOfElements())
                 .totalResult(paging.getTotalElements())
                 .totalPages(paging.getTotalPages())

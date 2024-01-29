@@ -33,8 +33,6 @@ public class ExpenseEntity {
     @PrePersist
     private void onPresist() {
         createdAt = OffsetDateTime.now();
-        expendDate = OffsetDateTime.now();
-
     }
 
 

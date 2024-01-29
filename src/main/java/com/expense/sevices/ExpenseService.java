@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -40,13 +39,14 @@ public class ExpenseService {
         Pageable pageable = PageRequest.of(req.getPageNo(), req.getPageSize(), sort);
 
         Page<ExpenseEntity> paging = expenseRepository.findAll(pageable);
+        Double sumExpend = expenseRepository.getSumExpend();
 
 
         return ResPaginationDto.builder()
-                .content(Collections.singletonList(paging.getContent()))
+                .content(paging.getContent())
                 .numberOfResult(paging.getNumberOfElements())
                 .totalResult(paging.getTotalElements())
-                .totalPages(paging.getTotalPages())
+                .totalPages(paging.getTotalPages()).expendSummary(sumExpend)
                 .build();
 
     }
@@ -72,6 +72,7 @@ public class ExpenseService {
         ExpenseEntity expense = new ExpenseEntity();
         expense.setExpend(req.getExpend());
         expense.setNote(req.getNote());
+        expense.setExpendDate(req.getExpendDate());
         var expenseRes = expenseRepository.save(expense);
 
         historyService.createHistory(HistoryEntity.builder()

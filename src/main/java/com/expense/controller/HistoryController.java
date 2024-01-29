@@ -23,7 +23,7 @@ public class HistoryController {
     @Autowired
     private HistoryService historyService;
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<Object> getAllHistory(
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,

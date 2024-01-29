@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/v1/expanse")
+@RequestMapping("/api/v1/expense")
 public class ExpenseController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -27,7 +27,7 @@ public class ExpenseController {
     private ExpenseService expenseService;
 
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<Object> getAllExpense(
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize,
@@ -42,7 +42,7 @@ public class ExpenseController {
                 .sortDirection(sortDirection)
                 .build();
 
-        logger.info("GET: /api/v1/expanse {}", paging.toString());
+        logger.info("GET: /api/v1/expense {}", paging.toString());
         return ResponseHandler.generateResponse(
                 HttpStatus.OK.series().toString(),
                 HttpStatus.OK,
@@ -52,14 +52,14 @@ public class ExpenseController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOneExpense(@PathVariable Integer id) throws Exception {
 
-        logger.info("POST: /api/v1/expanse {}", id);
+        logger.info("GET: /api/v1/expense {}", id);
         return ResponseHandler.generateResponse(
                 HttpStatus.OK.series().toString(),
                 HttpStatus.OK,
                 expenseService.findOneExpense(id));
     }
 
-    @PostMapping
+    @PostMapping({"", "/"})
     public ResponseEntity<Object> createExpense(@RequestBody ReqCreateExpenseDto body) throws Exception {
 
 
@@ -71,7 +71,7 @@ public class ExpenseController {
 
     }
 
-    @PutMapping
+    @PutMapping({"", "/"})
     public ResponseEntity<Object> updateExpense(@RequestBody @Validated UpdateExpenseDto body) throws Exception {
         logger.info("PUT: /api/v1/expense req {}", body.toString());
 
